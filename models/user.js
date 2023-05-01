@@ -1,4 +1,5 @@
 // схема пользователя
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
@@ -14,9 +15,9 @@ const userSchema = new mongoose.Schema({
     maxlength: 30, // а максимальная — 30 символов
   },
   avatar: {
-  type: String,
-  required: true
-  }
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('user', userSchema);
