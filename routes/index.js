@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { ERROR_CODE } = require('../constants/constants');
+const { ERROR_CODE_NOT_FOUND } = require('../constants/constants');
 
 const userRouter = require('./users');
 const cardsRouter = require('./cards');
@@ -7,7 +7,7 @@ const cardsRouter = require('./cards');
 router.use('/users', userRouter);
 router.use('/cards', cardsRouter);
 router.use('/*', (req, res) => {
-  res.status(ERROR_CODE).send({ message: 'Произошла ошибка, страница не найдена!' });
+  res.status(ERROR_CODE_NOT_FOUND).send({ message: '404: Not Found' });
 });
 
 module.exports = router;
