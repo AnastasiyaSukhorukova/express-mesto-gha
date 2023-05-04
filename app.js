@@ -14,7 +14,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
 
-app.use('/users', require('./routes/users'));
+app.use('/', require('./routes/index'));
 
 // id созданного пользователя
 app.use((req, res, next) => {
