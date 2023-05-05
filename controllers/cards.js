@@ -11,7 +11,8 @@ module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       res.status(200)
-      .send(cards) })
+      .send(cards)
+    })
     .catch(() => { res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage })});
 };
 
@@ -20,7 +21,8 @@ module.exports.removeCardId = (req, res) => {
     .orFail()
     .then((card) => {
       res.status(200)
-      .send(card) })
+      .send(card)
+    })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
@@ -39,7 +41,8 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => {
       res.status(201)
-      .send(card) })
+      .send(card)
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные в методы создания карточки.' });
@@ -53,7 +56,8 @@ module.exports.likeCard = (req, res) => {
     .orFail()
     .then((card) => {
       res.status(200)
-      .send(card) })
+      .send(card)
+    })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
@@ -70,7 +74,8 @@ module.exports.dislikeCard = (req, res) => {
     .orFail()
     .then((card) => {
       res.status(200)
-      .send(card) })
+      .send(card)
+    })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
