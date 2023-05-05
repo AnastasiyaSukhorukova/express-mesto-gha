@@ -10,7 +10,7 @@ const {
 } = require('../constants/constants');
 
 module.exports.getCards = (req, res) => {
-  Card.find({})
+  Card.find({}).populate(['owner', 'likes'])
     .then((cards) => res.status(CODE_OK).send(cards))
     .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage }));
 };
