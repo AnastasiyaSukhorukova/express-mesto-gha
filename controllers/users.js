@@ -2,7 +2,6 @@
 const User = require('../models/user');
 
 const {
-  CODE_OK,
   CODE_CREATED,
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
