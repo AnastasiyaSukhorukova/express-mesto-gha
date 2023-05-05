@@ -18,7 +18,7 @@ module.exports.removeCardId = (req, res) => {
     .orFail()
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') { 
+      if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
       }
       if (err.name === 'CastError') {
