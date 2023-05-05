@@ -12,14 +12,14 @@ const {
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(CODE_OK).res.send(users))
+    .then((users) => res.send(users))
     .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage }));
 };
 
 const getUserId = (req, res) => {
   User.findById(req.params.userId)
     .orFail()
-    .then((user) => res.status(CODE_OK).res.send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
@@ -49,7 +49,7 @@ const updateUser = (req, res) => {
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => res.status(CODE_OK).res.send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
@@ -66,7 +66,7 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => res.status(CODE_OK).res.send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
