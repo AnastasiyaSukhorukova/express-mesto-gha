@@ -2,6 +2,8 @@
 const User = require('../models/user');
 
 const {
+  CODE_OK,
+  CODE_CREATED,
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
   ERROR_CODE_DEFAULT,
@@ -10,14 +12,14 @@ const {
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send(users))
+    .then((users) => res.status(CODE_OK).res.send(users))
     .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage }));
 };
 
 const getUserId = (req, res) => {
   User.findById(req.params.userId)
     .orFail()
-    .then((user) => res.send(user))
+    .then((user) => res.status(CODE_OK).res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
@@ -33,7 +35,7 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ user }))
+    .then((user) => res.status(CODE_CREATED).send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя.' });
@@ -47,7 +49,7 @@ const updateUser = (req, res) => {
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => res.send(user))
+    .then((user) => res.status(CODE_OK).res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
@@ -64,7 +66,7 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => res.send(user))
+    .then((user) => res.status(CODE_OK).res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
