@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
-  CODE_CREATED,
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
   ERROR_CODE_DEFAULT,
@@ -44,13 +43,9 @@ const createUser = (req, res) => {
     .then((hash) => {
       User.create({
         email, password: hash, name, about, avatar,
-      })
-        .then((user) => {
-          const noPasswordUser = user.toObject({ useProjection: true });
-
-          return res.status(CODE_CREATED).send(noPasswordUser);
-        });
+      });
     })
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя.' });
