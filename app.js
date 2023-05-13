@@ -5,19 +5,10 @@ const router = require('./routes/index');
 const app = express();
 const { PORT = 3000 } = process.env;
 
-const idMiddleware = (req, res, next) => {
-  req.user = {
-    _id: '64517881e1a3e41c85fba33b',
-  };
-
-  next();
-};
-
 app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {});
 
-app.use(idMiddleware);
 app.use(router);
 
 app.listen(PORT, () => {

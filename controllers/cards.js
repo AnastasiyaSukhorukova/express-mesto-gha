@@ -6,18 +6,27 @@ const {
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
   ERROR_CODE_DEFAULT,
-  dafaultErrorMessage,
+  defaultErrorMessage,
 } = require('../constants/constants');
 
 module.exports.getCards = (req, res) => {
   Card.find({}).populate(['owner', 'likes'])
     .then((cards) => res.status(CODE_OK).send(cards))
-    .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage }));
+    .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage }));
 };
 
 module.exports.removeCardId = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  const currentUserId = req.user._id;
+  Card.findById(req.params.cardId)
     .orFail()
+    .then((card) => {
+      const ownerId = card.owner.toString();
+      if (ownerId !== currentUserId) {
+        return res.status(403).send({ message: 'Произошла ошибка прав доступа.' });
+      }
+      return card;
+    })
+    .then((card) => Card.deleteOne(card))
     .then((card) => res.status(CODE_OK).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -26,7 +35,7 @@ module.exports.removeCardId = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'Передан некорректный id карточки.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
@@ -40,7 +49,7 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные в методы создания карточки.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
@@ -55,7 +64,7 @@ module.exports.likeCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные для добавления лайка.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
@@ -70,6 +79,6 @@ module.exports.dislikeCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные для снятия лайка.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };

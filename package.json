@@ -4,8 +4,11 @@
   "description": "[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml) # Проект Mesto фронтенд + бэкенд",
   "main": "app.js",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
-    "mongoose": "^7.1.0"
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.1.0",
+    "validator": "^13.9.0"
   },
   "scripts": {
     "dev": "nodemon app.js",

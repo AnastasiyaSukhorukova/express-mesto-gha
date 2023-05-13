@@ -1,4 +1,6 @@
 // это файл контроллеров
+const bcrypt = require('bcryptjs'); // импортируем bcrypt
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
@@ -6,13 +8,13 @@ const {
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
   ERROR_CODE_DEFAULT,
-  dafaultErrorMessage,
+  defaultErrorMessage,
 } = require('../constants/constants');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage }));
+    .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage }));
 };
 
 const getUserId = (req, res) => {
@@ -26,20 +28,34 @@ const getUserId = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'Передан некорректный id пользователя.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+module.exports.getUserById = (req, res, next) => getUserId(req.params.userId, res, next);
+const getCurrentUser = (req, res, next) => getUserId(req.user._id, res, next);
 
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CODE_CREATED).send({ user }))
+const createUser = (req, res) => {
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+
+  bcrypt.hash(password, 16)
+    .then((hash) => {
+      User.create({
+        email, password: hash, name, about, avatar,
+      })
+        .then((user) => {
+          const noPasswordUser = user.toObject({ useProjection: true });
+
+          return res.status(CODE_CREATED).send(noPasswordUser);
+        });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
@@ -56,7 +72,7 @@ const updateUser = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
     });
 };
 
@@ -73,13 +89,48 @@ const updateAvatar = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: dafaultErrorMessage });
+      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+    });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      // сравниваем переданный пароль и хеш из базы
+      return bcrypt.compare(password, user.password);
+    })
+    // eslint-disable-next-line consistent-return
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+    })
+    .then((user) => {
+    // создадим токен
+      const token = jwt.sign({ _id: user._id }, 's64517881e1a3e41c85fba33b', { expiresIn: '7d' });
+
+      // вернём токен
+      res.send({ token });
+    })
+    .catch(() => {
+      // возвращаем ошибку аутентификации
+      res
+        .status(401)
+        .send({ message: 'Неправильные почта или пароль' });
     });
 };
 
 module.exports = {
+  login,
   getUsers,
   createUser,
+  getCurrentUser,
   getUserId,
   updateUser,
   updateAvatar,

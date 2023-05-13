@@ -3,7 +3,7 @@ const CODE_CREATED = 201;
 const ERROR_CODE = 400;
 const ERROR_CODE_NOT_FOUND = 404;
 const ERROR_CODE_DEFAULT = 500;
-const dafaultErrorMessage = 'Произошла ошибка.';
+const defaultErrorMessage = 'Произошла ошибка.';
 
 module.exports = {
   CODE_OK,
@@ -11,5 +11,5 @@ module.exports = {
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
   ERROR_CODE_DEFAULT,
-  dafaultErrorMessage,
+  defaultErrorMessage,
 };
