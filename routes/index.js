@@ -3,8 +3,7 @@ const { ERROR_CODE_NOT_FOUND } = require('../constants/constants');
 
 const userRouter = require('./users');
 const cardsRouter = require('./cards');
-const login = require('../controllers/users');
-const createUser = require('../controllers/users');
+const { login, createUser } = require('../controllers/users');
 
 const authMiddleware = require('../middlewares/auth');
 
