@@ -6,17 +6,15 @@ const User = require('../models/user');
 const {
   ERROR_CODE,
   ERROR_CODE_NOT_FOUND,
-  ERROR_CODE_DEFAULT,
-  defaultErrorMessage,
 } = require('../constants/constants');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage }));
+    .catch((err) => next(err));
 };
 
-const getUserId = (req, res) => {
+const getUserId = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
     .then((user) => res.send(user))
@@ -27,14 +25,14 @@ const getUserId = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'Передан некорректный id пользователя.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return next(err);
     });
 };
 
 module.exports.getUserById = (req, res, next) => getUserId(req.params.userId, res, next);
 const getCurrentUser = (req, res, next) => getUserId(req.user._id, res, next);
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -48,13 +46,16 @@ const createUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        return res.status(401).send({ message: 'Переданы некорректные данные при создании пользователя.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      if (err.code === 11000) {
+        return res.status(409).send({ message: 'Пользователь с указанным e-mail уже зарегистрирован' });
+      }
+      return next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
@@ -67,11 +68,11 @@ const updateUser = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
@@ -84,11 +85,11 @@ const updateAvatar = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
       }
-      return res.status(ERROR_CODE_DEFAULT).send({ message: defaultErrorMessage });
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }).select('+password')
@@ -113,12 +114,7 @@ const login = (req, res) => {
       // вернём токен
       res.send({ token });
     })
-    .catch(() => {
-      // возвращаем ошибку аутентификации
-      res
-        .status(401)
-        .send({ message: 'Неправильные почта или пароль' });
-    });
+    .catch(next);
 };
 
 module.exports = {
