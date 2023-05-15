@@ -41,20 +41,20 @@ const createUser = (req, res, next) => {
     .then((hash) => {
       User.create({
         email, password: hash, name, about, avatar,
-      });
-    })
-    .then((user) => {
-      const noPasswordUser = user.toObject({ useProjection: true });
-      return res.status(201).send(noPasswordUser);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(401).send({ message: 'Переданы некорректные данные при создании пользователя.' });
-      }
-      if (err.code === 11000) {
-        return res.status(409).send({ message: 'Пользователь с указанным e-mail уже зарегистрирован' });
-      }
-      return next(err);
+      })
+        .then((user) => {
+          const noPasswordUser = user.toObject({ useProjection: true });
+          return res.status(201).send(noPasswordUser);
+        })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            return res.status(401).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+          }
+          if (err.code === 11000) {
+            return res.status(409).send({ message: 'Пользователь с указанным e-mail уже зарегистрирован' });
+          }
+          return next(err);
+        });
     });
 };
 
