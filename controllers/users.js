@@ -98,7 +98,7 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return next(new Error('Неправильные почта или пароль'));
+        return res.status(401).send({ message: 'Неправильные почта или пароль.' });
       }
       // сравниваем переданный пароль и хеш из базы
       return bcrypt.compare(password, user.password)
@@ -106,9 +106,10 @@ const login = (req, res, next) => {
         .then((matched) => {
           if (!matched) {
           // хеши не совпали — отклоняем промис
-            return next(new Error('Неправильные почта или пароль'));
+            return res.status(401).send({ message: 'Неправильные почта или пароль.' });
           }
-        });
+        })
+        .catch(next);
     })
 
     .then((user) => {
