@@ -43,7 +43,10 @@ const createUser = (req, res, next) => {
         email, password: hash, name, about, avatar,
       });
     })
-    .then((user) => res.send(user))
+    .then((user) => {
+      const noPasswordUser = user.toObject({ useProjection: true });
+      return res.status(201).send(noPasswordUser);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(401).send({ message: 'Переданы некорректные данные при создании пользователя.' });
