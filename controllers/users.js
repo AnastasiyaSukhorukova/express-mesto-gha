@@ -98,18 +98,19 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        return next(new Error('Неправильные почта или пароль'));
       }
       // сравниваем переданный пароль и хеш из базы
-      return bcrypt.compare(password, user.password);
+      return bcrypt.compare(password, user.password)
+      // eslint-disable-next-line consistent-return
+        .then((matched) => {
+          if (!matched) {
+          // хеши не совпали — отклоняем промис
+            return next(new Error('Неправильные почта или пароль'));
+          }
+        });
     })
-    // eslint-disable-next-line consistent-return
-    .then((matched) => {
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-    })
+
     .then((user) => {
     // создадим токен
       const token = jwt.sign({ _id: user._id }, 's64517881e1a3e41c85fba33b', { expiresIn: '7d' });
