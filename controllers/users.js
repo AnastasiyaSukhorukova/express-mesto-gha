@@ -122,11 +122,11 @@ const login = (req, res, next) => {
 };
 
 module.exports = {
-  login,
   getUsers,
   createUser,
   getCurrentUser,
   getUserId,
   updateUser,
   updateAvatar,
+  login,
 };
