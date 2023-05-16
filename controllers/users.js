@@ -14,8 +14,8 @@ const getUsers = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-const getUserId = (req, res, next) => {
-  User.findById(req.params.userId)
+const getUserId = (id, res, next) => {
+  User.findById(id)
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {

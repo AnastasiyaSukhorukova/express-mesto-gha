@@ -11,8 +11,8 @@ const {
 const { getUserIdJoi, updateAvatarJoi, updateUserJoi } = require('../middlewares/celebrate');
 
 userRouter.get('/', getUsers);
-userRouter.get('/:userId', getUserIdJoi, getUserId);
 userRouter.get('/me', getCurrentUser);
+userRouter.get('/:userId', getUserIdJoi, getUserId);
 userRouter.patch('/me', updateUserJoi, updateUser);
 userRouter.patch('/me/avatar', updateAvatarJoi, updateAvatar);
 
