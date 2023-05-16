@@ -110,7 +110,7 @@ const login = (req, res, next) => {
           }
           const token = jwt.sign(
             { _id: user._id },
-            's64517881e1a3e41c85fba33b',
+            '2bc59e7789c14d292a3a5a1e08ad734211aa999007dc4eccab9868301900c2a6',
             { expiresIn: '7d' },
           );
           return res.send({ token });
