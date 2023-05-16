@@ -108,8 +108,7 @@ const login = (req, res, next) => {
           // хеши не совпали — отклоняем промис
             return res.status(401).send({ message: 'Неправильные почта или пароль.' });
           }
-        })
-        .catch(next);
+        });
     })
 
     .then((user) => {
