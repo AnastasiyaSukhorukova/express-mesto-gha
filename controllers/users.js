@@ -29,7 +29,7 @@ const getUserId = (id, res, next) => {
     });
 };
 
-module.exports.getUserById = (req, res, next) => getUserId(req.params.userId, res, next);
+const getUserById = (req, res, next) => getUserId(req.params.userId, res, next);
 const getCurrentUser = (req, res, next) => getUserId(req.user._id, res, next);
 
 const createUser = (req, res, next) => {
@@ -120,6 +120,7 @@ const login = (req, res, next) => {
 };
 
 module.exports = {
+  getUserById,
   getUsers,
   createUser,
   getCurrentUser,

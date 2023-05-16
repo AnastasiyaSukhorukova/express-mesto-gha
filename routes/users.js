@@ -2,7 +2,7 @@ const userRouter = require('express').Router();
 
 const {
   getUsers,
-  getUserId,
+  getUserById,
   getCurrentUser,
   updateUser,
   updateAvatar,
@@ -12,7 +12,7 @@ const { getUserIdJoi, updateAvatarJoi, updateUserJoi } = require('../middlewares
 
 userRouter.get('/', getUsers);
 userRouter.get('/me', getCurrentUser);
-userRouter.get('/:userId', getUserIdJoi, getUserId);
+userRouter.get('/:userId', getUserIdJoi, getUserById);
 userRouter.patch('/me', updateUserJoi, updateUser);
 userRouter.patch('/me/avatar', updateAvatarJoi, updateAvatar);
 
