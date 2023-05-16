@@ -108,15 +108,13 @@ const login = (req, res, next) => {
           // хеши не совпали — отклоняем промис
             return res.status(401).send({ message: 'Неправильные почта или пароль.' });
           }
+          const token = jwt.sign(
+            { _id: user._id },
+            's64517881e1a3e41c85fba33b',
+            { expiresIn: '7d' },
+          );
+          return res.send({ token });
         });
-    })
-
-    .then((user) => {
-    // создадим токен
-      const token = jwt.sign({ _id: user._id }, 's64517881e1a3e41c85fba33b', { expiresIn: '7d' });
-
-      // вернём токен
-      res.send({ token });
     })
     .catch(next);
 };
