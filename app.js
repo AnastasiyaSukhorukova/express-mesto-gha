@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const catchErrorsMiddleware = require('./middlewares/errors');
+const errorsMiddleware = require('./middlewares/errors');
 
 const app = express();
 
@@ -13,7 +13,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {});
 
 app.use('/', require('./routes/index'));
 
-app.use(catchErrorsMiddleware);
+app.use(errorsMiddleware);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту: ${PORT}`);
