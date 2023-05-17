@@ -3,9 +3,11 @@ const Card = require('../models/card');
 const {
   CODE_OK,
   CODE_CREATED,
-  ERROR_CODE,
-  ERROR_CODE_NOT_FOUND,
 } = require('../constants/constants');
+
+const ForbiddenError = require('../errors/forbiddenError');
+const NotFoundError = require('../errors/notFoundError');
+const BadRequestError = require('../errors/badRequestError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({}).populate(['owner', 'likes'])
@@ -20,7 +22,7 @@ module.exports.removeCardId = (req, res, next) => {
     .then((card) => {
       const ownerId = card.owner.toString();
       if (ownerId !== currentUserId) {
-        return res.status(403).send({ message: 'Произошла ошибка прав доступа.' });
+        throw new ForbiddenError('Ошибка прав доступа.');
       }
       return card;
     })
@@ -28,10 +30,10 @@ module.exports.removeCardId = (req, res, next) => {
     .then((card) => res.status(CODE_OK).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
+        return next(new NotFoundError('Карточка не найдена.'));
       }
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({ message: 'Передан некорректный id карточки.' });
+        return next(new BadRequestError('Передан некорректный id карточки.'));
       }
       return next(err);
     });
@@ -43,12 +45,7 @@ module.exports.createCard = (req, res, next) => {
 
   Card.create({ name, link, owner })
     .then((card) => res.status(CODE_CREATED).send(card))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные в методы создания карточки.' });
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {
@@ -57,10 +54,10 @@ module.exports.likeCard = (req, res, next) => {
     .then((card) => res.status(CODE_OK).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
+        return next(new NotFoundError('Карточка не найдена.'));
       }
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные для добавления лайка.' });
+        return next(new BadRequestError('Переданы некорректные данные для добавления лайка.'));
       }
       return next(err);
     });
@@ -72,10 +69,10 @@ module.exports.dislikeCard = (req, res, next) => {
     .then((card) => res.status(CODE_OK).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена.' });
+        return next(new NotFoundError('Карточка не найдена.'));
       }
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные для снятия лайка.' });
+        return next(new BadRequestError('Переданы некорректные данные для снятия лайка.'));
       }
       return next(err);
     });

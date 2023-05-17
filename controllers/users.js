@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs'); // импортируем bcrypt
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const {
-  ERROR_CODE,
-  ERROR_CODE_NOT_FOUND,
-} = require('../constants/constants');
+const AuthError = require('../errors/authError');
+const ConflictError = require('../errors/conflictError');
+const NotFoundError = require('../errors/notFoundError');
+const BadRequestError = require('../errors/badRequestError');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -20,10 +20,7 @@ const getUserId = (id, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
-      }
-      if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({ message: 'Передан некорректный id пользователя.' });
+        return next(new NotFoundError('Пользователь не найден.'));
       }
       return next(err);
     });
@@ -48,10 +45,10 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            return res.status(401).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+            return next(new BadRequestError('Переданы некорректные данные при создании пользователя.'));
           }
           if (err.code === 11000) {
-            return res.status(409).send({ message: 'Пользователь с указанным e-mail уже зарегистрирован' });
+            return next(new ConflictError('Пользователь с указанным e-mail уже зарегистрирован.'));
           }
           return next(err);
         });
@@ -66,10 +63,10 @@ const updateUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
+        return next(new NotFoundError('Пользователь не найден.'));
       }
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        return next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
       }
       return next(err);
     });
@@ -83,10 +80,10 @@ const updateAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден.' });
+        return next(new NotFoundError('Пользователь не найден.'));
       }
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
+        return next(new BadRequestError('Переданы некорректные данные при обновлении аватара.'));
       }
       return next(err);
     });
@@ -98,7 +95,7 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: 'Неправильные почта или пароль.' });
+        return next(new AuthError('Неправильные почта или пароль.'));
       }
       // сравниваем переданный пароль и хеш из базы
       return bcrypt.compare(password, user.password)
@@ -106,7 +103,7 @@ const login = (req, res, next) => {
         .then((matched) => {
           if (!matched) {
           // хеши не совпали — отклоняем промис
-            return res.status(401).send({ message: 'Неправильные почта или пароль.' });
+            return next(new AuthError('Неправильные почта или пароль.'));
           }
           const token = jwt.sign(
             { _id: user._id },

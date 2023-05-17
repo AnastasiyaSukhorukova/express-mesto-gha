@@ -1,5 +1,6 @@
 // схема карточки
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const cardSchema = new mongoose.Schema({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
@@ -11,6 +12,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (v) => validator.isURL(v, { require_protocol: true, require_valid_protocol: true, protocols: ['http', 'https'] }),
+      message: 'Некорректная ссылка на картинку',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
